@@ -1,0 +1,6 @@
+gradio>=5.22.0
+openai-agents>=0.0.15
+pandas>=2.0.0
+PyPDF2>=3.0.1
+openpyxl>=3.1.5
+python-dotenv>=1.0.1

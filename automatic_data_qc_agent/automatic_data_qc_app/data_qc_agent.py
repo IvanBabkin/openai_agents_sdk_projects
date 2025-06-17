@@ -3,6 +3,8 @@ from agents import Agent, Runner, ModelSettings, function_tool
 import pandas as pd
 import PyPDF2
 import io
+import openpyxl
+import json
 
 load_dotenv(override=True)
 
@@ -92,8 +94,55 @@ def load_excel_content(excel_bytes: bytes) -> str:
     global _excel_content
     try:
         excel_stream = io.BytesIO(excel_bytes)
-        excel_data = pd.read_excel(excel_stream, sheet_name=None)
-        _excel_content = str(excel_data)
+        workbook = openpyxl.load_workbook(excel_stream, data_only=False)
+        
+        # Process all sheets except 'data dictionary' (as per instructions)
+        all_sheets_data = {}
+        
+        for sheet_name in workbook.sheetnames:
+            if sheet_name.lower() == 'data dictionary':
+                continue  # Skip data dictionary sheet as per instructions
+                
+            worksheet = workbook[sheet_name]
+            
+            structured_data = {
+                "sheet_name": worksheet.title,
+                "cells": {},
+                "dimensions": {
+                    "max_row": worksheet.max_row,
+                    "max_column": worksheet.max_column
+                }
+            }
+            
+            for row in worksheet.iter_rows():
+                for cell in row:
+                    # Fix 1: Check for cell content properly
+                    has_formula = cell.data_type == 'f'
+                    has_value = cell.value is not None
+                    
+                    if has_value or has_formula:
+                        cell_info = {
+                            "coordinate": cell.coordinate,
+                            "value": cell.value,
+                            "data_type": cell.data_type,
+                            "row": cell.row,
+                            "column": cell.column
+                        }
+                        
+                        # Fix 2: Check for formula properly
+                        if has_formula:
+                            cell_info["formula"] = cell.value  # The formula IS the value when data_type is 'f'
+                        
+                        # Include formatting if needed
+                        if cell.number_format != 'General':
+                            cell_info["number_format"] = cell.number_format
+                        
+                        structured_data["cells"][cell.coordinate] = cell_info
+            
+            all_sheets_data[sheet_name] = structured_data
+        
+        # FIX: Assign the processed data to the global variable
+        _excel_content = json.dumps(all_sheets_data, indent=2, default=str)
         return _excel_content
     except Exception as e:
         _excel_content = f"Error reading Excel: {str(e)}"
