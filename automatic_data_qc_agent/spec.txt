@@ -1,0 +1,37 @@
+DATA SPECIFICATION DOCUMENT
+Version 1.0
+
+1. CUSTOMER DATA SHEET
+Required Columns:
+- CustomerID (Text, Required): Format "CUST-XXXXX" where X is digit
+- FirstName (Text, Required): Max 50 characters
+- LastName (Text, Required): Max 50 characters
+- Email (Text, Required): Valid email format
+- Phone (Text, Optional): Format "(XXX) XXX-XXXX"
+- DateJoined (Date, Required): Format DD/MM/YYYY
+- Status (Text, Required): Values "Active", "Inactive", "Pending"
+
+2. ORDERS SHEET
+Required Columns:
+- OrderID (Text, Required): Format "ORD-XXXXXXXX" where X is digit
+- CustomerID (Text, Required): Must exist in Customer Data
+- OrderDate (Date, Required): Format DD/MM/YYYY
+- TotalAmount (Number, Required): Decimal, max value 99999.99
+- PaymentMethod (Text, Required): Values "Credit", "Debit", "Cash", "PayPal"
+- ShippingStatus (Text, Required): Values "Pending", "Shipped", "Delivered"
+
+3. PRODUCTS SHEET
+Required Columns:
+- ProductCode (Text, Required): Format "PROD-XXX-YYY" where X is letter, Y is digit
+- ProductName (Text, Required): Max 100 characters
+- Category (Text, Required): Values "Electronics", "Clothing", "Food", "Other"
+- Price (Number, Required): Decimal, positive value
+- StockQuantity (Number, Required): Integer, non-negative
+- LastUpdated (Date, Required): Format DD/MM/YYYY
+
+BUSINESS RULES:
+- OrderDate must be after customer DateJoined
+- TotalAmount must be positive and less than 100000
+- All dates must be between 01/01/2020 and 31/12/2025
+- No duplicate CustomerID or OrderID allowed
+- Email addresses must be unique
